@@ -27,4 +27,4 @@ To Do
 Contributors
 ------------
 Lennart Regebro (regebro@gmail.com) - Original developer
-Alexandre Sauvé (mr.lex@free.fr) - CAS2 implementation
+Alexandre Sauv?? (mr.lex@free.fr) - CAS2 implementation

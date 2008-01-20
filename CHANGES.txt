@@ -3,7 +3,7 @@ Requires
 -
 New features
 ~~~~~~~~~~~~
-- Inclued Alexandre Suavés widely used patch.
+- Included Alexandre Suav??'s widely used patch.
 Bug fixes
 ~~~~~~~~~
 -
