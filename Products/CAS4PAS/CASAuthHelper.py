@@ -223,31 +223,26 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         GET parameters
         This function handles GET parameters
         """
-        # came_from is present with CMF sites (CPS, Plone, ...)
-        # and contains URL + QUERY_STRING
-        # Note: this behaviour is rather intrusive
-        service = request.get('came_from', None)
-        if not service:
-            if self.use_ACTUAL_URL:
-                # Zope < 2.7.4 do not provide ACTUAL_URL
-                service = request.get('ACTUAL_URL', request['URL'])
-            else:
-                service = request['URL']
+        if self.use_ACTUAL_URL:
+            # Zope < 2.7.4 do not provide ACTUAL_URL
+            service = request.get('ACTUAL_URL', request['URL'])
+        else:
+            service = request['URL']
 
-            # remove ticket parameter(s)
-            query_string = request.get('QUERY_STRING', "")
-            ticket_idx = query_string.find('ticket=')
-            if ticket_idx > 1:
-                # ticket is after some other parameters that we preserve
-                # we also remove the '&' char
-                query_string =  query_string[:ticket_idx - 1]
-            elif ticket_idx == 0:
-                # ticket was the only parameter
-                query_string = ""
+        # remove ticket parameter(s)
+        query_string = request.get('QUERY_STRING', "")
+        ticket_idx = query_string.find('ticket=')
+        if ticket_idx > 1:
+            # ticket is after some other parameters that we preserve
+            # we also remove the '&' char
+            query_string =  query_string[:ticket_idx - 1]
+        elif ticket_idx == 0:
+            # ticket was the only parameter
+            query_string = ""
 
-            # add filtered QUERY_STRING to service
-            if query_string:
-                service = "%s?%s" % (service, query_string)
+        # add filtered QUERY_STRING to service
+        if query_string:
+            service = "%s?%s" % (service, query_string)
 
         return urllib.quote(service)
         
