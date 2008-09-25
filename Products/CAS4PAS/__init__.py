@@ -25,10 +25,10 @@ mt = CASAuthHelper.CASAuthHelper.meta_type
 
 if mt not in MultiPlugins:
     registerMultiPlugin(mt)
- 
+
 def initialize(context):
 
-    context.registerClass(CASAuthHelper.CASAuthHelper, 
+    context.registerClass(CASAuthHelper.CASAuthHelper,
                           permission=ManageUsers,
                           constructors=(CASAuthHelper.addCASAuthHelperForm,
                                         CASAuthHelper.addCASAuthHelper, ),

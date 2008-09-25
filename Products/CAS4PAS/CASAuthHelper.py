@@ -25,20 +25,20 @@ addCASAuthHelperForm = PageTemplateFile(
 
 class ProtectedAuthInfo:
     """An object where the username is not accessible from user code
-    
+
     This object prevents the user name to be accessed or changed from
     anything by protected code. This means that we can always be sure
-    that the username returned from _getUsername() has not been 
+    that the username returned from _getUsername() has not been
     compromised by user code. This means we can store this object in a
     session, to have a session authentication.
     """
-    
+
     def _setAuthInfo(self, authinfo):
         self.__authinfo = authinfo
-    
+
     def _getAuthInfo(self):
         return self.__authinfo
-    
+
 
 def addCASAuthHelper( dispatcher
                        , id
@@ -65,7 +65,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
     validate_url = 'https://your.cas.server:port/cas/validate'
     session_var = '__ac'
     use_ACTUAL_URL = True
-    
+
     security = ClassSecurityInfo()
 
     _properties = ( { 'id'    : 'title'
@@ -128,8 +128,8 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         ob = session.get(self.session_var)
         if ob is not None and isinstance(ob, ProtectedAuthInfo):
             username = ob._getAuthInfo()
-            
-        if username is None: 
+
+        if username is None:
             # Not already authenticated. Is there a ticket in the URL?
             ticket = request.form.get('ticket')
             if ticket is None:
@@ -137,7 +137,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             username = self.validateTicket(self.getService(request), ticket)
             if username is None:
                 return None # Invalid CAS ticket
-            
+
             # Successfull CAS authentication. Store the username
             # in a ProtectedAuthInfo in the session.
             ob = ProtectedAuthInfo()
@@ -167,28 +167,28 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                         return parser.getUser()
                     test = casdata.readline()
                 if parser.getFailure():
-                    LOG("CAS4PAS", INFO, 
+                    LOG("CAS4PAS", INFO,
                         "Cannot validate ticket: %s [service=%s]" % (
                             parser.getFailure(), service))
                 else:
                     LOG("CAS4PAS", INFO, "CASXMLResponseParser couldn't " \
                                          "understand CAS server response")
             except HTMLParseError, e:
-                LOG("CAS4PAS", INFO, 
+                LOG("CAS4PAS", INFO,
                     "Error parsing ticket validation response: " + str(e))
             return None
         else:
-            LOG("CAS4PAS", INFO, 
+            LOG("CAS4PAS", INFO,
                 "ticket validation: some unknown authentication error occurred")
             return None
 
     def authenticateCredentials(self, credentials):
         if credentials['extractor'] != self.getId():
             return (None, None)
-        
+
         username = credentials['login']
         return (username, username)
-            
+
     security.declarePrivate('challenge')
     def challenge(self, request, response, **kw):
         """ Challenge the user for credentials. """
@@ -253,12 +253,12 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             service = "%s?%s" % (service, query_string)
 
         return urllib.quote(service)
-        
 
-classImplements(CASAuthHelper, 
-                IExtractionPlugin, 
-                IChallengePlugin, 
-                ICredentialsResetPlugin, 
+
+classImplements(CASAuthHelper,
+                IExtractionPlugin,
+                IChallengePlugin,
+                ICredentialsResetPlugin,
                 IAuthenticationPlugin)
 
 InitializeClass(CASAuthHelper)

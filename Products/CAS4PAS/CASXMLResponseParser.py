@@ -59,14 +59,14 @@ if __name__ == "__main__":
             'service' and 'ticket' parameters are both required
           </cas:authenticationFailure>
         </cas:serviceResponse>"""
-    try: 
+    try:
         parser = CASXMLResponseParser()
         parser.feed(xml_ok)
         if parser.getUser() == "joeblack":
             print "Test getUser    => OK"
         else:
             print "Test getUser    => FAIL (%s)" % parser.getUser()
-            
+
         parser = CASXMLResponseParser()
         parser.feed(xml_failure)
         if parser.getFailure() == "'service' and 'ticket' parameters are both required":
