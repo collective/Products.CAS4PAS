@@ -1,7 +1,14 @@
+2.0.2
+~~~~~
+- Fixed to not create session for anonymous user requests.
+  [deo]
+
 2.0.1
 ~~~~~
-- Removed came_from check that was disruptive [derek_richardson]
+- Removed came_from check that was disruptive.
+  [derek_richardson]
 
 2.0
 ~~~
-- Included Alexandre Suav??'s widely used patch.
+- Included Alexandre Suaves's widely used patch.
+  [derek_richardson]

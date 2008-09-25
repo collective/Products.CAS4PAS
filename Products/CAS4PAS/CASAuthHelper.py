@@ -113,9 +113,17 @@ class CASAuthHelper(PropertyManager, BasePlugin):
     def extractCredentials(self, request):
         """ Extract credentials from session or 'request'. """
         creds = {}
-        session = request.SESSION
+
+        # Do not create sessions for anonymous user requests
+        session = None
+        sdm = getattr(self, 'session_data_manager', None)
+        if sdm is not None:
+            session = sdm.getSessionData(create=0)
+        if session is None:
+            return creds
+
         username = None
-        
+
         # First check if we have a ProtectedAuthInfo in the session
         ob = session.get(self.session_var)
         if ob is not None and isinstance(ob, ProtectedAuthInfo):
