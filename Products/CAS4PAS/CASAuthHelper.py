@@ -138,9 +138,14 @@ class CASAuthHelper(PropertyManager, BasePlugin):
 
             # Successfull CAS authentication. Store the username
             # in a ProtectedAuthInfo in the session.
-            ob = ProtectedAuthInfo()
-            ob._setAuthInfo(username)
-            request.SESSION[self.session_var] = ob
+            #ob = ProtectedAuthInfo()
+            #ob._setAuthInfo(username)
+            #request.SESSION[self.session_var] = ob
+
+            cookie = self.session.source.createIdentifier(username)
+            creds['cookie'] = cookie
+            creds['source'] = 'plone.session'
+            self.session.setupSession(username, request.response)
 
         creds['login'] = username
         return creds
