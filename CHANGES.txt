@@ -1,14 +1,27 @@
-2.0.2
-~~~~~
+Changelog
+=========
+
+2.0.2 (unreleased)
+------------------
 - Fixed to not create session for anonymous user requests.
   [deo]
 
 2.0.1
-~~~~~
+-----
 - Removed came_from check that was disruptive.
   [derek_richardson]
 
+
 2.0
-~~~
+---
 - Included Alexandre Suaves's widely used patch.
   [derek_richardson]
+
+- eggified to Products.CAS4PAS by derek_richardson
+
+
+1.0
+---
+- Initial release of CAS4PAS built by: lregebro at: 2007-10-20T15:32:36
+  SVN Tag: https://svn.plone.org/svn/collective/CAS4PAS/tags/1.0.0
+  Build from: https://svn.plone.org/svn/collective/CAS4PAS/trunk@52114
