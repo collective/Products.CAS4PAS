@@ -122,7 +122,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             session = sdm.getSessionData(create=0)
 
         # First check if we have a ProtectedAuthInfo in the session
-	if session is not None:
+        if session is not None:
             ob = session.get(self.session_var)
             if ob is not None and isinstance(ob, ProtectedAuthInfo):
                 username = ob._getAuthInfo()
