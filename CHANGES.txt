@@ -1,10 +1,13 @@
 Changelog
 =========
 
-2.0.2 (unreleased)
-------------------
+2.1 2010-05-03
+--------------
 - Fixed to not create session for anonymous user requests.
   [deo]
+
+- Added the z3c.autoinclude entry point so this package is automatically loaded
+  [edegoute]
 
 2.0.1
 -----
