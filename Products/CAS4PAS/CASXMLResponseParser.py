@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+""" Parse CAS Response
+"""
 
-from HTMLParser import HTMLParser,HTMLParseError
+from HTMLParser import HTMLParser, HTMLParseError
 
 class CASXMLResponseParser(HTMLParser):
     """
@@ -20,7 +23,8 @@ class CASXMLResponseParser(HTMLParser):
         # tag is returned lowercase
         if tag == 'cas:user' or tag == 'user':
             self._user = 1
-        elif tag == 'cas:authenticationfailure' or tag == 'authenticationfailure':
+        elif tag == 'cas:authenticationfailure' or \
+             tag == 'authenticationfailure':
             self._failure = 1
         else:
             # leave this here as handle_data may be called several times
@@ -35,7 +39,7 @@ class CASXMLResponseParser(HTMLParser):
             self._failure_data = (self._failure_data or "") + data.strip()
 
     def handle_endtag(self, tag):
-            pass
+        pass
 
     def getUser(self):
         return self._user_data
@@ -45,7 +49,7 @@ class CASXMLResponseParser(HTMLParser):
 
 # a little test usable outside Zope plus a use case
 if __name__ == "__main__":
-    xml_ok="""
+    XML_OK = """
         <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
           <cas:authenticationSuccess>
             <cas:user>joeblack</cas:user>
@@ -53,7 +57,8 @@ if __name__ == "__main__":
             </cas:proxyGrantingTicket>
           </cas:authenticationSuccess>
         </cas:serviceResponse>"""
-    xml_failure="""
+
+    XML_FAILURE = """
         <cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
           <cas:authenticationFailure code='INVALID_REQUEST'>
             'service' and 'ticket' parameters are both required
@@ -61,15 +66,16 @@ if __name__ == "__main__":
         </cas:serviceResponse>"""
     try:
         parser = CASXMLResponseParser()
-        parser.feed(xml_ok)
+        parser.feed(XML_OK)
         if parser.getUser() == "joeblack":
             print "Test getUser    => OK"
         else:
             print "Test getUser    => FAIL (%s)" % parser.getUser()
 
         parser = CASXMLResponseParser()
-        parser.feed(xml_failure)
-        if parser.getFailure() == "'service' and 'ticket' parameters are both required":
+        parser.feed(XML_FAILURE)
+        bad_msg = "'service' and 'ticket' parameters are both required"
+        if parser.getFailure() == bad_msg:
             print "Test getFailure => OK"
         else:
             print "Test getFailure => FAIL"
