@@ -6,7 +6,7 @@
 from HTMLParser import HTMLParseError
 import urllib
 
-from zLOG import LOG,INFO, ERROR
+from zLOG import LOG,ERROR
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from OFS.PropertyManager import PropertyManager
 from App.class_init import default__class_init__ as InitializeClass
@@ -114,6 +114,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         """ Extract credentials from session or 'request'. """
         creds = {}
         username = None
+        LOG("CAS4PAS extractCredentials", ERROR, repr(request.form.items()))
 
         # Do not create sessions for anonymous user requests
         session = None
@@ -130,17 +131,17 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         if username is None:
             # Not already authenticated. Is there a ticket in the URL?
             ticket = request.form.get('ticket')
+            service = self.getService(request)
             if ticket is None:
+                if not self.gateway_mode:
+                    return None # No CAS authentification
+
+                url = self.getLoginURL()
+                request.response.redirect('%s?gateway=true&service=%s' % (url, service+'&amp;cas_gateway=true'), lock=1)
                 return None # No CAS authentification
-            username = self.validateTicket(self.getService(request), ticket)
+            username = self.validateTicket(service, ticket)
             if username is None:
                 return None # Invalid CAS ticket
-
-            # Successfull CAS authentication. Store the username
-            # in a ProtectedAuthInfo in the session.
-            #ob = ProtectedAuthInfo()
-            #ob._setAuthInfo(username)
-            #request.SESSION[self.session_var] = ob
 
             cookie = self.session.source.createIdentifier(username)
             creds['cookie'] = cookie
@@ -170,18 +171,18 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                         return parser.getUser()
                     test = casdata.readline()
                 if parser.getFailure():
-                    LOG("CAS4PAS", INFO,
+                    LOG("CAS4PAS", ERROR,
                         "Cannot validate ticket: %s [service=%s]" % (
                             parser.getFailure(), service))
                 else:
-                    LOG("CAS4PAS", INFO, "CASXMLResponseParser couldn't " \
+                    LOG("CAS4PAS", ERROR, "CASXMLResponseParser couldn't " \
                                          "understand CAS server response")
             except HTMLParseError, e:
-                LOG("CAS4PAS", INFO,
+                LOG("CAS4PAS", ERROR,
                     "Error parsing ticket validation response: " + str(e))
             return None
         else:
-            LOG("CAS4PAS", INFO,
+            LOG("CAS4PAS", ERROR,
                 "ticket validation: some unknown authentication error occurred")
             return None
 
@@ -205,14 +206,18 @@ class CASAuthHelper(PropertyManager, BasePlugin):
 
         # Redirect to CAS login URL.
         url = self.getLoginURL()
-        if url:
-            service = self.getService(request)
-            LOG("CAS4PAS >>>>> TEST <<<<<", ERROR, repr('%s?service=%s' % (url, service)))
-            result = urllib.URLopener().open('%s?service=%s' % (url, service))
-            LOG("CAS4PAS >>>>> TEST <<<<<", ERROR, repr(result.readlines()))
-            #del response.headers['WWW-Authenticate']
+        if not url:
+            return 0
+
+        service = self.getService(request)
+        #del response.headers['WWW-Authenticate']
+        if self.gateway_mode:
+            response.redirect('%s?gateway=true&service=%s' % (url, service), lock=1)
+            return 1
+        else:
             response.redirect('%s?service=%s' % (url, service), lock=1)
             return 1
+
         # Fall through to the standard unauthorized() call.
         return 0
 
