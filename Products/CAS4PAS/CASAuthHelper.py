@@ -6,7 +6,7 @@
 from HTMLParser import HTMLParseError
 import urllib
 
-from zLOG import LOG,INFO
+from zLOG import LOG,INFO, ERROR
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from OFS.PropertyManager import PropertyManager
 from App.class_init import default__class_init__ as InitializeClass
@@ -64,7 +64,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
     logout_url = 'https://your.cas.server:port/cas/logout'
     validate_url = 'https://your.cas.server:port/cas/validate'
     session_var = '__ac'
-    use_ACTUAL_URL = True
+    gateway_mode = False
 
     security = ClassSecurityInfo()
 
@@ -93,9 +93,9 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                      'label'  : 'Session credentials id',
                      'mode'   : 'w',
                     }
-                  , {'id'     : 'use_ACTUAL_URL',
+                  , {'id'     : 'gateway_mode',
                      'type'   : 'boolean',
-                     'label'  : 'Use ACTUAL_URL instead of URL',
+                     'label'  : "Use CAS gateway mode (no login page)",
                      'mode'   : 'w',
                     }
                   )
@@ -207,6 +207,9 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         url = self.getLoginURL()
         if url:
             service = self.getService(request)
+            LOG("CAS4PAS >>>>> TEST <<<<<", ERROR, repr('%s?service=%s' % (url, service)))
+            result = urllib.URLopener().open('%s?service=%s' % (url, service))
+            LOG("CAS4PAS >>>>> TEST <<<<<", ERROR, repr(result.readlines()))
             #del response.headers['WWW-Authenticate']
             response.redirect('%s?service=%s' % (url, service), lock=1)
             return 1
@@ -234,11 +237,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         GET parameters
         This function handles GET parameters
         """
-        if self.use_ACTUAL_URL:
-            # Zope < 2.7.4 do not provide ACTUAL_URL
-            service = request.get('ACTUAL_URL', request['URL'])
-        else:
-            service = request['URL']
+        service = request['URL']
 
         # remove ticket parameter(s)
         query_string = request.get('QUERY_STRING', "")
