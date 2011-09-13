@@ -143,10 +143,8 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             if username is None:
                 return None # Invalid CAS ticket
 
-            cookie = self.session.source.createIdentifier(username)
-            creds['cookie'] = cookie
             creds['source'] = 'plone.session'
-            self.session.setupSession(username, request.response)
+            self.session._setupSession(username, request.response)
 
         creds['login'] = username
         return creds
