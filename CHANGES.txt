@@ -1,8 +1,22 @@
 Changelog
 =========
 
+2.1.1 2011-09-13
+----------------
+
+- Add a first Plone 4 compatibility
+  [marshalium]
+
+- Improve the Plone 3 and Plone 4 compatibility
+  [encolpe]
+
+- Add a first implementation of the CAS gateway mode
+  [encolpe]
+
+
 2.1 2010-05-03
 --------------
+
 - Fixed to not create session for anonymous user requests.
   [deo]
 
