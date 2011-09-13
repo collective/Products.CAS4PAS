@@ -20,6 +20,13 @@ from Products.PluggableAuthService.interfaces.plugins import \
 
 from CASXMLResponseParser import CASXMLResponseParser
 
+try: 
+    # Plone 4 and higher 
+    import plone.app.upgrade 
+    PLONE_VERSION = 4 
+except ImportError: 
+    PLONE_VERSION = 3
+
 addCASAuthHelperForm = PageTemplateFile(
     'zmi/addCASAuthHelperForm.zpt', globals())
 
@@ -143,8 +150,16 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             if username is None:
                 return None # Invalid CAS ticket
 
-            creds['source'] = 'plone.session'
-            self.session._setupSession(username, request.response)
+
+            if PLONE_VERSION >= 4:
+                creds['source'] = 'plone.session'
+                self.session._setupSession(username, request.response)
+
+            else:
+                cookie = self.session.source.createIdentifier(username)
+                creds['cookie'] = cooki
+                creds['source'] = 'plone.session'
+                self.session.setupSession(username, request.response)
 
         creds['login'] = username
         return creds
