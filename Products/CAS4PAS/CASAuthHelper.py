@@ -157,7 +157,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
 
             else:
                 cookie = self.session.source.createIdentifier(username)
-                creds['cookie'] = cooki
+                creds['cookie'] = cookie
                 creds['source'] = 'plone.session'
                 self.session.setupSession(username, request.response)
 
