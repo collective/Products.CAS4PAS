@@ -1,15 +1,18 @@
-# -*- coding: ISO-8859-15 -*-
+# -*- coding: utf-8 -*-
 #
 # $Id$
 ""
 
 from HTMLParser import HTMLParseError
+import random
+import string
 import urllib
 
-from zLOG import LOG,ERROR
+from zLOG import LOG, ERROR, DEBUG
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from OFS.PropertyManager import PropertyManager
 from App.class_init import default__class_init__ as InitializeClass
+from Products.CMFPlone.utils import getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
@@ -121,7 +124,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         """ Extract credentials from session or 'request'. """
         creds = {}
         username = None
-        LOG("CAS4PAS extractCredentials", ERROR, repr(request.form.items()))
+        LOG("CAS4PAS extractCredentials", DEBUG, repr(request.form.items()))
 
         # Do not create sessions for anonymous user requests
         session = None
@@ -150,6 +153,10 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             if username is None:
                 return None # Invalid CAS ticket
 
+            # Add domain to avoid conflict with source_users logins
+            username += '_cas'
+            # # is an illegal character for user's login
+            username.replace('#', '_')
 
             if PLONE_VERSION >= 4:
                 creds['source'] = 'plone.session'
@@ -161,6 +168,14 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                 creds['source'] = 'plone.session'
                 self.session.setupSession(username, request.response)
 
+        mtool = getToolByName(self, 'portal_membership')
+        if mtool.getMemberById(username) is None:
+            regtool = getToolByName(self, 'portal_registration')
+            # Generate a random password so the user cannot connect without password
+            # if source_users authentication is still enabled
+            password = ''.join(random.choice(string.printable) for x in range(16))
+            regtool.addMember(username, password)
+
         creds['login'] = username
         return creds
 
@@ -169,7 +184,13 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         checkparams = "?service=" + service + "&ticket=" + ticket
         # check the ticket
         casdata = urllib.URLopener().open(self.validate_url + checkparams)
+
         test = casdata.readline().strip()
+        while len(test) == 0:
+            test = casdata.readline()
+            if len(test) == 0:
+                break
+            test = test.strip()
         if test == 'yes':
             # user is validated (CAS architecture 1.0)
             username = casdata.readline().strip()
