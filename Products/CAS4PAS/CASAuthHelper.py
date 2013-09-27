@@ -185,7 +185,6 @@ class CASAuthHelper(PropertyManager, BasePlugin):
         checkparams = "?service=" + service + "&ticket=" + ticket
         # check the ticket
         casdata = urllib.URLopener().open(self.validate_url + checkparams)
-
         test = casdata.readline().strip()
         while len(test) == 0:
             test = casdata.readline()
@@ -202,9 +201,13 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                 parser = CASXMLResponseParser()
                 while test:
                     parser.feed(test)
-                    if parser.getUser():
-                        return parser.getUser()
                     test = casdata.readline()
+                if parser.getUser():
+
+                    # @TODO add to cookie
+                    print parser.getAttributes()
+                        
+                    return parser.getUser()
                 if parser.getFailure():
                     LOG("CAS4PAS", ERROR,
                         "Cannot validate ticket: %s [service=%s]" % (

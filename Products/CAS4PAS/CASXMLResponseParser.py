@@ -17,6 +17,9 @@ class CASXMLResponseParser(HTMLParser):
     _user_data = None
     _failure = 0
     _failure_data = None
+    _attributes = 0
+    _attributes_data = {}
+    _attr_key = None
 
 
     def handle_starttag(self, tag, attrs):
@@ -26,6 +29,10 @@ class CASXMLResponseParser(HTMLParser):
         elif tag == 'cas:authenticationfailure' or \
              tag == 'authenticationfailure':
             self._failure = 1
+        elif tag == 'cas:attributes':
+            self._attributes = 1
+        elif self._attributes == 1:
+            self._attr_key = tag[4:]
         else:
             # leave this here as handle_data may be called several times
             # for the same node
@@ -37,15 +44,22 @@ class CASXMLResponseParser(HTMLParser):
             self._user_data = (self._user_data or "") + data.strip()
         if self._failure == 1:
             self._failure_data = (self._failure_data or "") + data.strip()
+        if self._attributes == 1 and len(data.strip()) > 0:
+            self._attributes_data[self._attr_key] = data
 
     def handle_endtag(self, tag):
-        pass
+        if tag == 'cas:attributes':
+            self._attributes = 0
 
     def getUser(self):
         return self._user_data
 
     def getFailure(self):
         return self._failure_data
+
+    def getAttributes(self):
+        return self._attributes_data
+
 
 # a little test usable outside Zope plus a use case
 if __name__ == "__main__":
