@@ -50,6 +50,8 @@ class CASXMLResponseParser(HTMLParser):
     def handle_endtag(self, tag):
         if tag == 'cas:attributes':
             self._attributes = 0
+        if tag == 'cas:user':
+            self._user = 0
 
     def getUser(self):
         return self._user_data

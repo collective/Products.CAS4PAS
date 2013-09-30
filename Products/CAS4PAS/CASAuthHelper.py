@@ -203,10 +203,10 @@ class CASAuthHelper(PropertyManager, BasePlugin):
                     parser.feed(test)
                     test = casdata.readline()
                 if parser.getUser():
-
-                    # @TODO add to cookie
-                    print parser.getAttributes()
-                        
+                    attributes = parser.getAttributes()
+                    sdm = getToolByName(self, 'session_data_manager')
+                    session = sdm.getSessionData(create=True)
+                    session.set('cas_attributes', attributes)
                     return parser.getUser()
                 if parser.getFailure():
                     LOG("CAS4PAS", ERROR,
