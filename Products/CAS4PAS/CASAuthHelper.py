@@ -199,6 +199,7 @@ class CASAuthHelper(PropertyManager, BasePlugin):
             # We have an XML response (CAS architecture 2.0)
             try:
                 parser = CASXMLResponseParser()
+                parser.resetAttributes()
                 while test:
                     parser.feed(test)
                     test = casdata.readline()

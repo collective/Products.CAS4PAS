@@ -13,6 +13,7 @@ class CASXMLResponseParser(HTMLParser):
         - "user", username
         - "failure", failure_message
     """
+
     _user = 0
     _user_data = None
     _failure = 0
@@ -21,6 +22,14 @@ class CASXMLResponseParser(HTMLParser):
     _attributes_data = {}
     _attr_key = None
 
+    def resetAttributes(self):
+        self._user = 0
+        self._user_data = None
+        self._failure = 0
+        self._failure_data = None
+        self._attributes = 0
+        self._attributes_data = {}
+        self._attr_key = None
 
     def handle_starttag(self, tag, attrs):
         # tag is returned lowercase
@@ -45,7 +54,10 @@ class CASXMLResponseParser(HTMLParser):
         if self._failure == 1:
             self._failure_data = (self._failure_data or "") + data.strip()
         if self._attributes == 1 and len(data.strip()) > 0:
-            self._attributes_data[self._attr_key] = data
+            if self._attr_key in self._attributes_data.keys():
+                self._attributes_data[self._attr_key] += data.strip()
+            else:
+                self._attributes_data[self._attr_key] = data.strip()
 
     def handle_endtag(self, tag):
         if tag == 'cas:attributes':
